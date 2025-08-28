@@ -1,0 +1,46 @@
+# 🔁 EMR Reprocessing — Automação de Reprocessamentos e Cargas Históricas
+
+Este projeto tem como objetivo automatizar o processo de execução de reprocessamentos e cargas históricas em clusters EMR, anteriormente realizados de forma manual. A automação traz mais eficiência, rastreabilidade e escalabilidade à operação de dados.
+
+## ✅ Feature Finalizada
+
+A automação cobre desde o disparo inicial via S3 até a execução de jobs Spark e envio de notificações, com controle completo via Athena.
+
+## 🔧 Como Funciona o Novo Fluxo Automatizado
+
+1. **Disparo Inicial**  
+   O processo se inicia com a inserção de um arquivo JSON em um bucket específico no S3.
+
+2. **Validação**  
+   Uma função Lambda (`lambda_1`) é acionada via evento de put, interpretando o conteúdo do arquivo e validando as variáveis obrigatórias.
+
+3. **Execução com Cluster Ativo**  
+   - Se houver um cluster EMR ativo, uma mensagem é enviada para uma fila SQS.  
+   - Uma Lambda (`lambda_4`) consome essa fila, submete as variáveis e executa o `spark-submit`.  
+   - O processo é registrado em uma tabela de controle com `INSERT` e `UPDATE` ao final.
+
+4. **Execução sem Cluster Ativo**  
+   - Caso não haja cluster disponível, outra fila SQS é acionada para criar um novo cluster.  
+   - Após a criação, uma terceira fila monitora o status até o estado `RUNNING`.  
+   - Em seguida, o job é submetido conforme o fluxo anterior.
+
+5. **Notificação de Resultado**  
+   - Uma Lambda (`lambda_5`) é acionada por eventos do EMR e envia notificações formatadas via webhook.  
+   - Também atualiza o status do processo na tabela de controle.
+
+## 📌 Pontos Importantes
+
+- Arquitetura orientada a eventos com uso intensivo de AWS Lambda, S3, SQS e EMR.
+- Garantia de rastreabilidade e controle de execução via tabela de controle no Athena.
+- Modularidade e escalabilidade para múltiplos tipos de reprocessamentos.
+
+## 🚀 Melhorias Futuras
+
+- **Organização de Arquivos**: Movimentação automática de arquivos JSON já processados para diretórios específicos.
+- **Notificações Automatizadas**: Envio de e-mails ao solicitante ao final do processo.
+- **Encadeamento de Processos**: Implementação de lógica para reprocessamentos dependentes em cadeia.
+
+---
+
+📁 Este projeto faz parte do meu portfólio de engenharia de dados.  
+📎 Os códigos estão organizados por função Lambda e validados em ambiente AWS.
