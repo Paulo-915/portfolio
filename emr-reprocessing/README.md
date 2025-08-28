@@ -36,7 +36,6 @@ A automação cobre desde o disparo inicial via S3 até a execução de jobs Spa
 
 ## 🚀 Melhorias Futuras
 
-- **Organização de Arquivos**: Movimentação automática de arquivos JSON já processados para diretórios específicos.
 - **Notificações Automatizadas**: Envio de e-mails ao solicitante ao final do processo.
 - **Encadeamento de Processos**: Implementação de lógica para reprocessamentos dependentes em cadeia.
 
