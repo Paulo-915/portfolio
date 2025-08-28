@@ -4,7 +4,7 @@ Bem-vindo ao meu portfólio! Aqui você encontrará projetos que desenvolvi ao l
 
 ## 📂 Projetos
 
-### 🔁 EMR Reprocessing
+### 🔁 [Reprocessing EMR](./emr-reprocessing/)
 Automação de reprocessamentos em clusters EMR usando AWS Lambda, SQS, Athena e notificações via webhook.
 
 - [Verifica Status do Cluster](./emr-reprocessing/lambda_1_verifica_status_cluster/lambda_1.py)
