@@ -9,10 +9,10 @@ import datetime
 # Inicializa a sessão Spark
 spark = SparkSession.builder.appName("SuperScriptEstudoPySpark").getOrCreate()
 
-# Parte 1: Criação e Manipulação
-# --------------------------------
+# Parte 1: Manipulação de Dados
+# ------------------------------
 
-# 1. Criação do DataFrame
+# 1. Criação de DataFrame
 data = [
     ("Alice", 34, "Data Scientist"),
     ("Bob", 45, "Data Engineer"),
@@ -26,11 +26,27 @@ schema = StructType([
 ])
 df = spark.createDataFrame(data, schema=schema)
 
-# 2. Agrupamento por Occupation e cálculo da média de idade
+# Exibir o DataFrame original
+df.show()
+
+# 2. Filtragem e Seleção
+# Selecionar apenas as colunas "Name" e "Age"
+df_selected = df.select("Name", "Age")
+
+# Filtrar as linhas onde a idade é maior que 30
+df_filtered = df_selected.filter(df_selected["Age"] > 30)
+df_filtered = df_selected.where(col("Age") > 30 & (col("Name") == "Bob")) #outro exemplo
+
+# 3. Agrupamento e Agregação
+# Agrupar por "Occupation" e calcular a média de idade
 df_grouped = df.groupBy("Occupation").agg(avg("Age").alias("Average_Age"))
 
-# 3. Ordenação pela média de idade em ordem decrescente
+# 4. Ordenação
+# Ordenar pela média de idade em ordem decrescente
 df_sorted = df_grouped.orderBy("Average_Age", ascending=False)
+
+# Exibir resultado da ordenação
+df_sorted.show()
 
 # 4. UDF para categorizar idades
 def age_category(age):
@@ -70,6 +86,8 @@ schema_desc = StructType([
 df_desc = spark.createDataFrame(occupation_desc, schema=schema_desc)
 
 # Join com broadcast
+#Join com broadcast: força o Spark a replicar um DataFrame pequeno (df_desc) em todos os nós para acelerar
+#  o join com um DataFrame grande (df_final), evitando shuffle.
 df_joined = df_final.join(broadcast(df_desc), on="Occupation", how="left")
 
 # Parte 4: Integração com Outras Tecnologias
@@ -81,11 +99,15 @@ csv_schema = StructType([
     StructField("Age", IntegerType(), True),
     StructField("Occupation", StringType(), True)
 ])
+
 # Simulação de leitura de CSV (substitua 'input.csv' pelo caminho real)
 # df_csv = spark.read.csv("input.csv", header=True, schema=csv_schema)
 # df_csv.write.mode("overwrite").parquet("output/data.parquet")
 
 # Integração com Hadoop HDFS (substitua os caminhos conforme necessário)
+#PySpark se integra nativamente com o HDFS, permitindo leitura e escrita de arquivos diretamente no sistema distribuído. 
+# Isso é possível porque o Spark roda sobre o Hadoop ou pode acessar o HDFS via URI (hdfs://).
+
 # df_hdfs = spark.read.csv("hdfs://namenode:8020/user/data/input.csv", header=True)
 # df_hdfs.write.mode("overwrite").parquet("hdfs://namenode:8020/user/data/output.parquet")
 
